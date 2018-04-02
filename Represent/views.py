@@ -16,33 +16,7 @@ from rest_framework.viewsets import ViewSetMixin as InternalViewSetMixin
 
 
 # Create your views here.
-class GenericAPIView(InternalGenericAPIView, APIView):
-    lookup_field = 'id'
-
-    @classmethod
-    def as_view(cls, **initkwargs):
-        return APIView.as_view(**initkwargs)
-
-
-class ViewSetMixin(InternalViewSetMixin):
-
-    @classmethod
-    def as_view(cls, actions=None, **initkwargs):
-        view = super(ViewSetMixin, cls).as_view(actions=actions, **initkwargs)
-        view.cls = cls
-        view.initkwargs = initkwargs
-        view.suffix = initkwargs.get('suffix', None)
-        view.actions = actions
-        for decorator in cls.decorators:
-            view = decorator(view)
-        return view
-
-
-class GenericViewSet(ViewSetMixin, GenericAPIView):
-    pass
-
-
-class OwnerViewSet(RetrieveModelMixin, UpdateModelMixin, GenericViewSet):
+class OwnerViewSet(RetrieveModelMixin, UpdateModelMixin):
     serializer_class = OwnerSerializer
     lookup_field = None
 
@@ -56,7 +30,7 @@ class OwnerViewSet(RetrieveModelMixin, UpdateModelMixin, GenericViewSet):
     @login_required
     def update(self, request, *args, **kwargs):
         response = super().update(request, *args, **kwargs)
-        self.send_user_update_notification(request)
+        self.get_object.update(request)
         return response
 
     @login_required
@@ -68,7 +42,8 @@ class OwnerViewSet(RetrieveModelMixin, UpdateModelMixin, GenericViewSet):
 
     @detail_route(methods=['post'])
     def signup(self, request, *args, **kwargs):
-        email, password = self.validate_email_and_password_submitted(request)
+        email = request.data.get('email')
+        password = request.data.get('password')
         first_name = request.data.get('first_name')
         last_name = request.data.get('last_name')
         username = request.data.get('username')
