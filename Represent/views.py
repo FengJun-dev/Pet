@@ -67,7 +67,9 @@ class OwnerViewSet(RetrieveModelMixin, UpdateModelMixin):
 
     @detail_route(methods=['post'])
     def login(self, request, *args, **kwargs):
-        owner = self.validate_user_credentials(request)
+        owner_email = request.data.get('email')
+        owner_query_set = Owner.objects.filter('owner_email')
+        if owner_email ==
         # login
         auth.login(request, owner)
 
