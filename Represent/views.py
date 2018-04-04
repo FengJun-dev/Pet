@@ -1,22 +1,15 @@
-from django.shortcuts import render
-from rest_framework.views import APIView
-from django.contrib.auth.decorators import login_required
-from Represent.models import Owner, Dog, Cat
-from rest_framework.response import Response
-from rest_framework import status, mixins
-from rest_framework.decorators import detail_route
-from django.http import Http404
-from Represent.serializers import OwnerSerializer, DogSerializer, CatSerializer
-from rest_framework.mixins import RetrieveModelMixin, UpdateModelMixin
+from Represent.models import Dog, Cat
+from Represent.serializers import DogSerializer, CatSerializer, OwnerSerializer
 from rest_framework import generics
-from rest_framework.exceptions import ValidationError
-from django.contrib import auth
-from rest_framework.generics import GenericAPIView as InternalGenericAPIView
-from rest_framework.viewsets import ViewSetMixin as InternalViewSetMixin
-
+from django.contrib.auth.models import User
+from rest_framework import permissions, viewsets
+from Represent.permissions import IsOwnerOrReadOnly
+from rest_framework.decorators import api_view
+from rest_framework.response import Response
+from rest_framework.reverse import reverse
 
 # Create your views here.
-class OwnerViewSet(RetrieveModelMixin, UpdateModelMixin):
+"""class OwnerViewSet(RetrieveModelMixin, UpdateModelMixin):
     serializer_class = OwnerSerializer
     lookup_field = None
 
@@ -68,8 +61,8 @@ class OwnerViewSet(RetrieveModelMixin, UpdateModelMixin):
     @detail_route(methods=['post'])
     def login(self, request, *args, **kwargs):
         owner_email = request.data.get('email')
-        owner_query_set = Owner.objects.filter('owner_email')
-        if owner_email ==
+        owner_query = Owner.objects.get(email__exact=owner_email)
+        if owner_query
         # login
         auth.login(request, owner)
 
@@ -96,60 +89,29 @@ class OwnerViewSet(RetrieveModelMixin, UpdateModelMixin):
             return Response(data)
         return Response(dict(
             is_authenticated=False,
-        ))
+        ))"""
 
 
-class DogList(mixins.ListModelMixin, mixins.CreateModelMixin, generics.GenericAPIView):
+class OwnerViewSet(viewsets.ReadOnlyModelViewSet):
+    queryset = User.objects.all()
+    serializer_class = OwnerSerializer
+
+
+class DogViewSet(viewsets.ModelViewSet):
     queryset = Dog.objects.all()
     serializer_class = DogSerializer
+    permission_classes = (permissions.IsAuthenticatedOrReadOnly,
+                          IsOwnerOrReadOnly,)
 
-    def get(self, request, *args, **kwargs):
-        return self.list(request, *args, **kwargs)
-
-    @login_required
-    def post(self, request, *args, **kwargs):
-        return self.create(request, *args, **kwargs)
+    def perform_create(self, serializer):
+        serializer.save(owner=self.request.user)
 
 
-class DogDetail(mixins.RetrieveModelMixin, mixins.UpdateModelMixin, mixins.DestroyModelMixin, generics.GenericAPIView):
-    queryset = Cat.objects.all()
-    serializer_class = DogSerializer
-
-    def get(self, request, *args, **kwargs):
-        return self.retrieve(request, *args, **kwargs)
-
-    @login_required
-    def put(self, request, *args, **kwargs):
-        return self.update(request, *args, **kwargs)
-
-    @login_required
-    def delete(self, request, *args, **kwargs):
-        return self.destroy(request, *args, **kwargs)
-
-
-class CatList(mixins.ListModelMixin, mixins.CreateModelMixin, generics.GenericAPIView):
-    queryset = Cat.objects.all()
+class CatViewSet(viewsets.ModelViewSet):
+    queryset = Dog.objects.all()
     serializer_class = CatSerializer
+    permission_classes = (permissions.IsAuthenticatedOrReadOnly,
+                          IsOwnerOrReadOnly,)
 
-    def get(self, request, *args, **kwargs):
-        return self.list(request, *args, **kwargs)
-
-    @login_required
-    def post(self, request, *args, **kwargs):
-        return self.create(request, *args, **kwargs)
-
-
-class CatDetail(mixins.RetrieveModelMixin, mixins.UpdateModelMixin, mixins.DestroyModelMixin, generics.GenericAPIView):
-    queryset = Cat.objects.all()
-    serializer_class = CatSerializer
-
-    def get(self, request, *args, **kwargs):
-        return self.retrieve(request, *args, **kwargs)
-
-    @login_required
-    def put(self, request, *args, **kwargs):
-        return self.update(request, *args, **kwargs)
-
-    @login_required
-    def delete(self, request, *args, **kwargs):
-        return self.destroy(request, *args, **kwargs)
+    def perform_create(self, serializer):
+        serializer.save(owner=self.request.user)

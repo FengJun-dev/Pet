@@ -15,23 +15,21 @@ Including another URLconf
 """
 from django.conf.urls import url, include
 from django.contrib import admin
-from rest_framework.routers import SimpleRouter
-from Represent.views import OwnerViewSet, DogList, DogDetail, CatList, CatDetail
+from rest_framework.routers import DefaultRouter
+from Represent.views import DogViewSet, CatViewSet, OwnerViewSet
+from rest_framework.urlpatterns import format_suffix_patterns
 
-simple_router = SimpleRouter(trailing_slash=False)
-simple_router.register(r'users', OwnerViewSet, base_name='owner')
 
-urls = [
-    url(r'^dog/$', DogList.as_view()),
-    url(r'^dog/(?P<pk>[0-9]+)/$', DogDetail.as_view()),
-    url(r'^cat/$', CatList.as_view()),
-    url(r'^cat/(?P<pk>[0-9]+)/$', CatDetail.as_view()),
-]
-urls.extend(simple_router.urls)
+default_router = DefaultRouter()
+default_router.register(r'^dog', DogViewSet)
+default_router.register(r'^cat', CatViewSet)
+default_router.register(r'^owners', OwnerViewSet)
+
+# simple_router.register(r'users', OwnerViewSet, base_name='owner')
 
 
 urlpatterns = [
     url(r'^admin/', admin.site.urls),
     url(r'^api-auth/', include('rest_framework.urls')),
-    url('^', include(urls)),
+    url('', include(default_router.urls)),
 ]

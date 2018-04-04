@@ -1,21 +1,28 @@
 from rest_framework import serializers
 from Represent.models import Owner, Dog, Cat
+from django.contrib.auth.models import User
 
 
-class OwnerSerializer(serializers.ModelSerializer):
+class OwnerSerializer(serializers.HyperlinkedModelSerializer):
+    dog = serializers.PrimaryKeyRelatedField(many=True, queryset=Dog.objects.all())
+    cat = serializers.PrimaryKeyRelatedField(many=True, queryset=Cat.objects.all())
+
     class Meta:
-        model = Owner
-        fields = ('id', 'username', 'first_name', 'last_name', 'email')
-        read_only_fields = ('id',)
+        model = User
+        fields = ('id', 'username', 'dog', 'cat')
 
 
-class DogSerializer(serializers.ModelSerializer):
+class DogSerializer(serializers.HyperlinkedModelSerializer):
+    owner = serializers.ReadOnlyField(source='owner.username')
+
     class Meta:
         model = Dog
-        fields = ('id', 'name', 'birthday_year', 'birthday_month', 'birthday_day', 'owner')
+        fields = ('id', 'name', 'birth_date', 'owner')
 
 
-class CatSerializer(serializers.ModelSerializer):
+class CatSerializer(serializers.HyperlinkedModelSerializer):
+    owner = serializers.ReadOnlyField(source='owner.username')
+
     class Meta:
         model = Cat
-        fields = ('id', 'name', 'birthday_year', 'birthday_month', 'birthday_day', 'owner')
+        fields = ('id', 'name', 'birth_date', 'owner')

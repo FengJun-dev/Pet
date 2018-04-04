@@ -26,14 +26,11 @@ class Owner(models.Model):
 class Dog(models.Model):
     id = models.AutoField(primary_key=True)
     name = models.CharField(unique=True, max_length=100)
-    birthday_year = models.IntegerField(max_length=4)
-    birthday_month = models.IntegerField(max_length=2)
-    birthday_day = models.IntegerField(max_length=2)
-    owner = models.ForeignKey(Owner, on_delete=models.CASCADE)
+    birth_date = models.DateField(blank=True, null=True)
+    owner = models.ForeignKey('auth.User', related_name='dog', on_delete=models.CASCADE)
 
-    @property
-    def birthday(self):
-        return '{0}-{1}-{2}'.format(self.birthday_year, self.birthday_month, self.birthday_day)
+    class Meta:
+        ordering = ('id',)
 
     def __str__(self):
         return 'id="{id}" name="{name}"'.format(
@@ -45,14 +42,11 @@ class Dog(models.Model):
 class Cat(models.Model):
     id = models.AutoField(primary_key=True)
     name = models.CharField(unique=True, max_length=100)
-    birthday_year = models.IntegerField(max_length=4)
-    birthday_month = models.IntegerField(max_length=2)
-    birthday_day = models.IntegerField(max_length=2)
-    owner = models.ForeignKey(Owner, on_delete=models.CASCADE)
+    birth_date = models.DateField(blank=True, null=True)
+    owner = models.ForeignKey('auth.User', related_name='cat', on_delete=models.CASCADE)
 
-    @property
-    def birthday(self):
-        return '{0}-{1}-{2}'.format(self.birthday_year, self.birthday_month, self.birthday_day)
+    class Meta:
+        ordering = ('id',)
 
     def __str__(self):
         return 'id="{id}" name="{name}"'.format(
