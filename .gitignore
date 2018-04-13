@@ -1,12 +1,6 @@
 .idea/
 .DS_Store
 __pycache__/
-*.sql
-scripts/*.json
-scripts/populate_db.py
-scripts/lipsum.txt
-private_settings.py
-db/migrations/*
-dumpdata*.json
-.coverage
-htmlcov
+*.sqlite3
+settings.py
+Procfile
