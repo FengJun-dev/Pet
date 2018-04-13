@@ -26,7 +26,7 @@ SECRET_KEY = '2a5b7151549cf209cf6abd42edd34f8b116d5992db6e78ac3737ed589828ecd24d
 # DEBUG = False
 DEBUG = bool(os.environ.get('DJANGO_DEBUG', True))
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['floating-dawn-85288.herokuapp.com', '127.0.0.1']
 
 
 # Application definition
@@ -122,3 +122,5 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/1.10/howto/static-files/
 
 STATIC_URL = '/static/'
+
+STATIC_ROOT = os.path.join(BASE_DIR, 'collected_static')
